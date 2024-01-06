@@ -1,136 +1,130 @@
 import logo from './logo.svg';
-import './index.css'
+import './App.css';
 import Header from './Header';
-import Content from './Content';
+import Nav from './Nav';
+import Home from './Home';
+import NewPost from './NewPost';
+import PostPage from './PostPage';
+import About from './About';
+import Missing from './Missing';
 import Footer from './Footer';
-import { useState, useEffect, useRef } from 'react';
-import Additem from './Additem';
-import SearchItem from './SearchItem';
-import apiRequest from './apiRequest';
+import { Route, Routes } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import Post from './Post';
+import Feed from './Feed';
 
 function App() {
 
+const [posts,setPosts] = useState(
+  [
+    {
+      
+      id: 1,
+      title: "are or do repels provide blacked out except option criticizes",
+      month:"July",
+      body: "because he also accepts\nundertakes the consequences of refusal and when\nhe criticizes the trouble so that the whole\nof our things are but they are the matter will happen to the architect"
+    },
+    {
+      
+      id: 2,
+      title: "who is being",
+      month:"May",
+      body: "it is in the time of life that things should be followed; no pain will blame the blessed ones; nor will they flee from the flattery of the pleasure; nor will there be any trouble to reject them; we shall not be open to them; we shall not be able to do so, but there is nothing."
+    },
+    {
+      
+      id: 3,
+      title: "she repels troubles as if she were training, whoever she is",
+      month:"Jun",
+      body: "and just but by what right\nthe lust of every one who chooses to be blinded, or to the\nlust of pains or accusers, who is spared\nhis pains further by his hatred and labor and wants or"
+    },
+    {
+      
+      id: 4,
+      title: "and he is blinded",
+      month:'Aug',
+      body: "by rejecting any and often to gain pleasure\nbut it is easy to assume the fault of things\nwhoever does not know the benefits here is bound by the thing and the pain itself by right\nwhosoever wants the pleasure of things"
+    },
+  ]
+  )
 
-  const inputRef = useRef();
-  
-  const API = 'http://localhost:3500/items';
-
-  const [items,setItems] = useState([]);
-
-  const [newItem,setNewItem] = useState("");
-  const [search,setSearch] = useState('');
-  const [isloading,setIsloading] = useState(true)
-
+  const [search,serSearch] = useState('')
+  const [searchresult,setSearchResult]=useState([])
+  const [postTitle,setPostTitle] = useState('')
+  const [postBody,setPostBody]= useState('')
 
   useEffect(()=>{
-    const fetchItems = async() => {
-      try{
-        const response = await fetch(API);
-        if(!response.ok) throw Error("Data Not Received")
-        console.log(response)
-        const listItems = await response.json()
-        console.log(listItems)
-        setItems(listItems);
-      }
-      catch(err){
-        console.log(err.stack)
-      }
-      finally{
-        setIsloading(false)
-      }
-    } 
-    setTimeout(()=>{
-      (async () => await fetchItems()) ()
-    },3000)
-
-  },[])
-
-    const addItem = async(item) =>{
-      const id = items.length ? items[items.length - 1].id +1 : 1;
-      const newItem = {id, checked:false,item};
-      const listItems = [...items,newItem]
-      setItems(listItems)
-      // localStorage.setItem("todo_list",JSON.stringify(listItems))
+    const filterResults = posts.filter((post)=>
+      ((post.body).toLowerCase()).includes(search.toLowerCase()) || ((post.title).toLowerCase().includes(search.toLowerCase()))
+    )
+    setSearchResult(filterResults.reverse())
+  },[posts,search])
 
 
-      const postOptions={
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json'
-        },
-        body:JSON.stringify(newItem)
-      }
-      const result = await apiRequest(API,postOptions);
+  const handleSubmit = (e) =>{
+
+    e.preventDefault();
+    const id = posts.length ? posts[posts.length - 1].id + 1 : 1;
     
+    const newpost = { id, title:postTitle, body:postBody}
 
-    }
+    const allPosts = [...posts,newpost]
 
-    const handleCheck = async(id) =>{
-        const listItems = items.map((item)=> item.id===id ? {...item,checked:!item.checked} : item  
-        )
-        setItems(listItems)
-        // localStorage.setItem("todo_list",JSON.stringify(listItems))
+    setPosts(allPosts)
 
-        const myItem = listItems.filter((item)=>item.id===id)
+    setPostBody('')
+    setPostTitle('')
+  }
 
-        const updateOptions={
-          method:'PATCH',
-          headers:{
-            'Content-Type':'application/json'
-          },
-          body:JSON.stringify({checked:myItem[0].checked})
-        }
+  const handleDelete = () =>{
+    
+  }
 
-        const reqApi = `${API}/${id}`
-
-      const result = await apiRequest(reqApi,updateOptions);
-
-    }
-
-    const handleDelete = async(id) =>{
-
-      const deleteItems = items.filter((item)=> item.id !== id)
-      setItems(deleteItems)
-      // localStorage.setItem("todo_list",JSON.stringify(deleteItems))
-
-      const deleteOption = {method:'DELETE'}
-
-      const reqApi = `${API}/${id}`
-      const result = await apiRequest(reqApi,deleteOption);
-
-    }
-
-    const handleSubmit = (e) =>{
-      e.preventDefault();
-      if(!newItem) return;
-      console.log(newItem)
-      addItem(newItem)
-      setNewItem("");
-    }
 
   return (
     <div className="App">
-      <Header  title="Elamaran_List" />
-      <Additem
-      newItem={newItem}
-      setNewItem={setNewItem}
-      handleSubmit={handleSubmit}
+      <Header
+      title='Social Media App'
       />
-      <SearchItem
+      <Nav
       search={search}
-      setSearch={setSearch}
+      setSearch={serSearch}
       />
-      <main>
-        {isloading && <p>{`Your Data is Loading`}</p>}
-      {!isloading && <Content
-        items={items.filter(item=> ((item.item).toLowerCase()).includes(search.toLowerCase()))}      
-        handleCheck={handleCheck}
-        handleDelete={handleDelete}
-      />}
-      </main>
-      <Footer
-      length={items.length}
+     <Routes>
+
+      <Route path='/' element={<Home posts={searchresult} 
+      /> }/>
+
+      <Route path='/newpost'> 
+       <Route index element={ <NewPost
+        handleSubmit={handleSubmit}
+        postTitle={postTitle}
+        setPostTitle={setPostTitle}
+        postBody={postBody}
+        setPostBody={setPostBody}
+      /> } />
+      <Route path='id' element={<PostPage
+      posts={posts} handleDelete={handleDelete}
+      /> }
       />
+      </Route>
+      {/* <PostPage /> */}
+      <Route path='/about' element={<About /> } />
+    </Routes>
+
+
+      {/* <Feed /> */}
+      
+
+      {/* <Header />
+      <Nav />
+      <Home />
+      <NewPost />
+      <PostPage />
+      <About />
+      <Missing />
+      <Footer /> */}
+      
     </div>
   );
 }

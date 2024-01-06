@@ -1,12 +1,9 @@
 import React from 'react'
 
-function Footer({length}) {
-
-    
-
+export default function Footer() {
   return (
-    <footer>{length} List {length ===1 ? "item":"items"}</footer>
+    <footer>
+        <h1>Footer</h1>
+    </footer>
   )
 }
-
-export default Footer
